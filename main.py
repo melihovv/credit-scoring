@@ -3,6 +3,7 @@ from pybrain.datasets import ClassificationDataSet
 from pybrain.utilities import percentError
 from pybrain.tools.shortcuts import buildNetwork
 from pybrain.supervised.trainers import BackpropTrainer
+from pybrain.structure import SoftmaxLayer
 
 data_file = 'data.csv'
 
@@ -26,18 +27,31 @@ print("First sample (input, target, class):")
 print(trndata['input'][0], trndata['target'][0], trndata['class'][0])
 
 hidden_neurons_count = 5
-net = buildNetwork(trndata.indim, hidden_neurons_count, trndata.outdim)
+net = buildNetwork(trndata.indim, hidden_neurons_count, trndata.outdim,
+                   outclass=SoftmaxLayer)
 
-trainer = BackpropTrainer(net, dataset=trndata, momentum=0.1, verbose=True,
-                          weightdecay=0.01)
+trainer = BackpropTrainer(net, dataset=trndata, verbose=True,
+                          weightdecay=0.002)
+trainer.trainOnDataset(trndata, 500)
+trainer.testOnData(verbose=True)
 
-for i in range(20):
-    trainer.trainEpochs(1)
-    trnresult = percentError(trainer.testOnClassData(),
-        trndata['class'])
-    tstresult = percentError(trainer.testOnClassData(
-        dataset=tstdata), tstdata['class'])
+# for i in range(20):
+# trainer.trainEpochs(1)
+# trnresult = percentError(trainer.testOnClassData(),
+#         trndata['class'])
+#     tstresult = percentError(trainer.testOnClassData(
+#         dataset=tstdata), tstdata['class'])
+#
+#     print("epoch: %4d" % trainer.totalepochs,
+#           "  train error: %5.2f%%" % trnresult,
+#           "  test error: %5.2f%%" % tstresult)
+#
+out = net.activate(
+    [1, 1, 18, 4, 2, 1049, 1, 2, 4, 2, 1, 4, 2, 21, 3, 1, 1, 3, 1, 1]
+)
+print(out)
 
-    print("epoch: %4d" % trainer.totalepochs,
-          "  train error: %5.2f%%" % trnresult,
-          "  test error: %5.2f%%" % tstresult)
+out = net.activate(
+    [0, 2, 48, 0, 10, 18424, 1, 3, 1, 2, 1, 2, 2, 32, 1, 2, 1, 4, 1, 2]
+)
+print(out)
